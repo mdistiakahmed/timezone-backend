@@ -6,5 +6,7 @@ import org.toptal.model.User;
 
 @Repository
 public interface UserDao extends CrudRepository<User, Long> {
-    User findByUsername(String username);
+    User findByEmail(String email);
+    boolean existsByEmail(String email);
+    long deleteByEmail(String email);
 }

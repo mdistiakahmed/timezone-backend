@@ -1,6 +1,7 @@
 package org.toptal.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,10 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.toptal.config.TokenProvider;
-import org.toptal.model.AuthToken;
-import org.toptal.model.LoginUser;
-import org.toptal.model.User;
-import org.toptal.model.UserDto;
+import org.toptal.model.*;
 import org.toptal.service.UserService;
 
 import java.util.List;
@@ -33,11 +31,11 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> generateToken(@ModelAttribute LoginUser loginUser) throws AuthenticationException {
+    public ResponseEntity<?> generateToken(@RequestBody LoginUser loginUser) throws AuthenticationException {
 
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginUser.getUsername(),
+                        loginUser.getEmail(),
                         loginUser.getPassword()
                 )
         );
@@ -47,7 +45,7 @@ public class UserController {
     }
 
     @RequestMapping(value="/register", method = RequestMethod.POST)
-    public User saveUser(@ModelAttribute UserDto user){
+    public User saveUser(@RequestBody UserDto user){
         return userService.save(user);
     }
 
@@ -63,6 +61,38 @@ public class UserController {
     @RequestMapping(value="/userping", method = RequestMethod.GET)
     public String userPing(){
         return "Any User Can Read This";
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequestMapping(value="/getAllUser", method = RequestMethod.GET)
+    public List<UserDto> getAllUser(){
+        return userService.findAll();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequestMapping(value="/addUser", method = RequestMethod.POST)
+    public ResponseEntity<?> addUser(@RequestBody UserDto user){
+        UserDto userDto = userService.addUser(user);
+         if(userDto == null) {
+             return  ResponseEntity.status(HttpStatus.CONFLICT).body("Existing account this email address");
+
+         }else {
+             return new ResponseEntity<>(HttpStatus.CREATED);
+         }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequestMapping(value="/deleteUsers", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteUsers(@RequestBody UserDelete userDelete){
+        userService.bulkDelete(userDelete.getEmailIds());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequestMapping(value="/updateUser", method = RequestMethod.POST)
+    public User updateUser(@RequestBody UserUpdate userUpdate){
+        return userService.updateUser(userUpdate);
     }
 
 }

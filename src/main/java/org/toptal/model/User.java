@@ -1,7 +1,10 @@
 package org.toptal.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -12,23 +15,38 @@ public class User {
     private long id;
 
     @Column
-    private String username;
+    private String email;
 
     @Column
     @JsonIgnore
     private String password;
 
-    @Column
-    private String email;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne
     @JoinTable(name = "USER_ROLES",
-            joinColumns = {
-                    @JoinColumn(name = "USER_ID")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "ROLE_ID") })
-    private Set<Role> roles;
+            joinColumns =
+                    { @JoinColumn(name = "USER_ID") },
+            inverseJoinColumns =
+                    { @JoinColumn(name = "ROLE_ID") })
+    private Role role;
+
+
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Timezone> timezonelist;
+
+    public List<Timezone> getTimezonelist() {
+        return timezonelist;
+    }
+
+    public void setTimezonelist(List<Timezone> timezonelist) {
+        this.timezonelist = timezonelist;
+    }
+
+
+
+
 
     public long getId() {
         return id;
@@ -36,14 +54,6 @@ public class User {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
@@ -63,11 +73,11 @@ public class User {
     }
 
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
