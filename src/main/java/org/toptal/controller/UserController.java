@@ -95,4 +95,10 @@ public class UserController {
         return userService.updateUser(userUpdate);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequestMapping(value="/updateUserPut", method = RequestMethod.PUT)
+    public User updateUserPut(@RequestBody UserUpdate userUpdate){
+        return userService.updateUser(userUpdate);
+    }
+
 }
