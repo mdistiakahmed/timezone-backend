@@ -50,20 +50,6 @@ public class UserController {
     }
 
 
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @RequestMapping(value="/adminping", method = RequestMethod.GET)
-    public String adminPing(){
-        return "Only Admins Can Read This";
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @RequestMapping(value="/userping", method = RequestMethod.GET)
-    public String userPing(){
-        return "Any User Can Read This";
-    }
-
-
     @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/getAllUser", method = RequestMethod.GET)
     public List<UserDto> getAllUser(){
@@ -92,12 +78,6 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/updateUser", method = RequestMethod.POST)
     public User updateUser(@RequestBody UserUpdate userUpdate){
-        return userService.updateUser(userUpdate);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @RequestMapping(value="/updateUserPut", method = RequestMethod.PUT)
-    public User updateUserPut(@RequestBody UserUpdate userUpdate){
         return userService.updateUser(userUpdate);
     }
 
